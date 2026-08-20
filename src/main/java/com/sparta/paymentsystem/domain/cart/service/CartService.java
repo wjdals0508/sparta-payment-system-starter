@@ -42,7 +42,7 @@ public class CartService {
     @Transactional
     public void updateQuantity(Long memberId, Long itemId, int quantity) {
         CartItem item = cartItemRepository.findById(itemId)
-                .filter(ci -> ci.getMemberId().equals(memberId))
+                .filter(ci -> ci.getMember().getId().equals(memberId))
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
         item.changeQuantity(quantity);
     }
@@ -53,6 +53,14 @@ public class CartService {
         if (deleted == 0) {
             throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
+    }
+
+    public List<CartItem> findCartEntities(Long memberId) {
+        return cartItemRepository.findByMemberId(memberId);
+    }
+
+    public List<CartItem> findCartEntitiesByIds(Long memberId, List<Long> cartItemIds) {
+        return cartItemRepository.findByIdInAndMember_IdWithProduct(cartItemIds, memberId);
     }
 
     private CartItemResponse toResponse(CartItem item) {
